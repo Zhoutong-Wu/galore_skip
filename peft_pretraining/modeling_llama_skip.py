@@ -157,12 +157,18 @@ class LlamaMLP(nn.Module):
     def forward(self, x):
         return self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
 
-
 class LlamaAttention(nn.Module):
     """Multi-headed attention from 'Attention Is All You Need' paper"""
-
-    def __init__(self, config: LlamaConfig):
+    cache_v = None
+    def __init__(self, config: LlamaConfig, layer_num, merge_heads=None):
+        """
+        Args:
+            config (LlamaConfig): 模型配置。
+            layer_num (int): 当前层的编号。
+            merge_heads (int, optional): 控制合并的头数，实际为后面未合并时V的头数。
+        """
         super().__init__()
+        self.layer_num = layer_num
         self.config = config
         self.hidden_size = config.hidden_size
         self.num_heads = config.num_attention_heads
@@ -174,9 +180,18 @@ class LlamaAttention(nn.Module):
                 f"hidden_size must be divisible by num_heads (got `hidden_size`: {self.hidden_size}"
                 f" and `num_heads`: {self.num_heads})."
             )
+        # 控制合并的头数，默认为 self.num_heads // 2
+        self.merge_heads = merge_heads if merge_heads is not None else self.num_heads // 2
+        
         self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
         self.k_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
-        self.v_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
+        #self.v_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
+        # 根据 layer_num 决定 V 的维度
+        if layer_num == 0:
+            self.v_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
+        else:
+            # V 的输出维度减半
+            self.v_proj = nn.Linear(self.hidden_size, self.merge_heads * self.head_dim, bias=False)
         self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=False)
         self.rotary_emb = LlamaRotaryEmbedding(self.head_dim, max_position_embeddings=self.max_position_embeddings)
 
@@ -196,7 +211,17 @@ class LlamaAttention(nn.Module):
 
         query_states = self.q_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = self.k_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
-        value_states = self.v_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+        #value_states = self.v_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+        if self.layer_num == 0:
+            # 第一层正常计算 V
+            value_states = self.v_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+            # 缓存 V 的后一半
+            LlamaAttention.cache_v = value_states[:, self.merge_heads:, :, :]
+        else:
+            # 后续层 V 的维度减半
+            value_states = self.v_proj(hidden_states).view(bsz, q_len, self.merge_heads, self.head_dim).transpose(1, 2)
+            # 拼接缓存的 V
+            value_states = torch.cat([value_states, LlamaAttention.cache_v], dim=1)
 
         kv_seq_len = key_states.shape[-2]
         if past_key_value is not None:
@@ -218,7 +243,7 @@ class LlamaAttention(nn.Module):
                     f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
                 )
 
-        # WARNING: padding mask is ignored, causal is always applied
+        # 计算注意力输出
         attn_output = torch.nn.functional.scaled_dot_product_attention(
             query_states, key_states, value_states, dropout_p=0.0, is_causal=True,
         )
@@ -241,10 +266,10 @@ class LlamaAttention(nn.Module):
 
 
 class LlamaDecoderLayer(nn.Module):
-    def __init__(self, config: LlamaConfig):
+    def __init__(self, config: LlamaConfig, layer_num):
         super().__init__()
         self.hidden_size = config.hidden_size
-        self.self_attn = LlamaAttention(config=config)
+        self.self_attn = LlamaAttention(config=config, layer_num=layer_num)
         self.mlp = LlamaMLP(
             hidden_size=self.hidden_size,
             intermediate_size=config.intermediate_size,
@@ -434,7 +459,7 @@ class LlamaModel(LlamaPreTrainedModel):
         self.vocab_size = config.vocab_size
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
-        self.layers = nn.ModuleList([LlamaDecoderLayer(config) for _ in range(config.num_hidden_layers)])
+        self.layers = nn.ModuleList([LlamaDecoderLayer(config, layer_num=layer_num) for layer_num in range(config.num_hidden_layers)])
         self.norm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
         self.gradient_checkpointing = False

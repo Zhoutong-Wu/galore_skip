@@ -1,4 +1,4 @@
-torch
-transformers
 bitsandbytes
 tensorly
+torch
+transformers
