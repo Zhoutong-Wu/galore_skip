@@ -7,7 +7,7 @@ torchrun --standalone --nproc_per_node 8 torchrun_main_skip.py \
     --lr $lr \
     --rank 1024 \
     --update_proj_gap 200 \
-    --batch_size 64 \
+    --batch_size 32 \
     --total_batch_size 512 \
     --num_training_steps 120000 \
     --warmup_steps 12000 \
