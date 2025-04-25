@@ -438,7 +438,7 @@ def main(args):
 
         # save checkpoint by save_every
         if local_step > args.gradient_accumulation and update_step % args.save_every == 0 and global_rank == 0:
-            model.config.pad_token_id = 1   # maybe not correct
+            # model.config.pad_token_id = 1   # maybe not correct
             current_model_directory = f"{args.save_dir}/model_{update_step}"
             logger.info(f"Saving model and optimizer to {current_model_directory}, update step {update_step}")
             os.makedirs(args.save_dir, exist_ok=True)

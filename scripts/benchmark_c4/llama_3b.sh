@@ -1,6 +1,6 @@
 # LLaMA-3B, GaLore-Adam, 8 A100, 1 Node
-lr=0.0006
-wd=0
+lr=0.0002
+wd=0.1
 name="llama3b-base-adamw-lr${lr}-wd${wd}"
 torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --model_config configs/llama_3b.json \
@@ -15,4 +15,5 @@ torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --dtype bfloat16 \
     --eval_every 1000 \
     --name $name \
-    --save_dir /path/to/save/dir 
+    --save_dir /path/to/save/dir \
+    --grad_clipping 1.0 \
