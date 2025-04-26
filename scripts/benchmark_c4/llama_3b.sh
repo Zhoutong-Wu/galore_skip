@@ -15,5 +15,5 @@ torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --dtype bfloat16 \
     --eval_every 1000 \
     --name $name \
-    --save_dir /path/to/save/dir \
+    --save_dir checkpoints/LLaMA-3B \
     --grad_clipping 1.0 \
