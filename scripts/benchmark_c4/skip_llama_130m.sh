@@ -1,8 +1,8 @@
 # LLaMA-130M, GaLore-Adam, 1 A100, 1 Node
 lr=0.002
 wd=0.1
-name="llama130m-base-adamw-lr${lr}-wd${wd}"
-torchrun --standalone --nproc_per_node 1 torchrun_main.py \
+name="llama130m-skip-adamw-lr${lr}-wd${wd}"
+torchrun --standalone --nproc_per_node 1 torchrun_main_skip.py \
     --model_config configs/llama_130m.json \
     --lr $lr \
     --galore_scale 0.25 \
@@ -16,5 +16,5 @@ torchrun --standalone --nproc_per_node 1 torchrun_main.py \
     --dtype bfloat16 \
     --eval_every 1000 \
     --save_every 200 \
-    --save_dir checkpoints/LLaMA-130M \
+    --save_dir checkpoints/Skip-LLaMA-130M \
     --name $name
