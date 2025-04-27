@@ -9,9 +9,9 @@ torchrun --standalone --nproc_per_node 4 torchrun_main.py \
     --rank 128 \
     --update_proj_gap 200 \
     --batch_size 64 \
-    --total_batch_size 256 \
-    --num_training_steps 30000 \
-    --warmup_steps 3000 \
+    --total_batch_size 512 \
+    --num_training_steps 15000 \
+    --warmup_steps 1500 \
     --weight_decay 0 \
     --dtype bfloat16 \
     --eval_every 1000 \
