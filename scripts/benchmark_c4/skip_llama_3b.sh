@@ -17,3 +17,4 @@ torchrun --standalone --nproc_per_node 8 torchrun_main_skip.py \
     --name $name \
     --save_dir checkpoints/Skip-LLaMA-3B \
     --grad_clipping 1.0 \
+    --max_length 1024

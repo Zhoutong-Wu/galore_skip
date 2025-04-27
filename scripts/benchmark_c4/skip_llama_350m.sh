@@ -15,6 +15,6 @@ torchrun --standalone --nproc_per_node 4 torchrun_main_skip.py \
     --weight_decay 0 \
     --dtype bfloat16 \
     --eval_every 1000 \
-    --save_every 500 \
     --save_dir checkpoints/Skip-LLaMA-350M \
-    --name $name
+    --name $name \
+    --max_length 1024
