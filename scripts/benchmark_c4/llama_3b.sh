@@ -1,5 +1,5 @@
 # LLaMA-3B, GaLore-Adam, 8 A100, 1 Node
-lr=0.0002
+lr=0.00025
 wd=0.1
 name="llama3b-base-adamw-lr${lr}-wd${wd}"
 torchrun --standalone --nproc_per_node 8 torchrun_main.py \
@@ -8,7 +8,7 @@ torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --rank 1024 \
     --update_proj_gap 200 \
     --batch_size 32 \
-    --total_batch_size 512 \
+    --total_batch_size 256 \
     --num_training_steps 120000 \
     --warmup_steps 12000 \
     --weight_decay $wd \
