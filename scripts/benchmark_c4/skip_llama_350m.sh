@@ -1,5 +1,5 @@
 # LLaMA-350M, GaLore-Adam, 4 A100, 1 Node
-lr=0.001
+lr=0.002
 wd=0.1
 name="llama350m-skip-adamw-lr${lr}-wd${wd}"
 torchrun --standalone --nproc_per_node 4 torchrun_main_skip.py \
