@@ -2,7 +2,7 @@
 lr=0.002
 wd=0.1
 name="llama350m-skip-adamw-lr${lr}-wd${wd}"
-torchrun --standalone --nproc_per_node 4 torchrun_main_skip.py \
+bash launch.sh torchrun_main_skip.py \
     --model_config configs/llama_350m.json \
     --lr $lr \
     --galore_scale 0.25 \

@@ -2,7 +2,7 @@
 lr=0.00025
 wd=0.1
 name="llama3b-base-adamw-lr${lr}-wd${wd}"
-torchrun --standalone --nproc_per_node 8 torchrun_main.py \
+bash launch.sh torchrun_main.py \
     --model_config configs/llama_3b.json \
     --lr $lr \
     --rank 1024 \
@@ -17,3 +17,4 @@ torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --name $name \
     --save_dir checkpoints/LLaMA-3B \
     --grad_clipping 1.0 \
+    --max_length 1024
