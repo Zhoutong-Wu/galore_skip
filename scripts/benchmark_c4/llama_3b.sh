@@ -1,5 +1,5 @@
 # LLaMA-3B, GaLore-Adam, 8 A100, 1 Node
-lr=0.00025
+lr=0.0005
 wd=0.1
 name="llama3b-base-adamw-lr${lr}-wd${wd}"
 torchrun --standalone --nproc_per_node 8 torchrun_main.py \
@@ -17,3 +17,4 @@ torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --name $name \
     --save_dir checkpoints/LLaMA-3B \
     --grad_clipping 1.0 \
+    --max-length 1024
