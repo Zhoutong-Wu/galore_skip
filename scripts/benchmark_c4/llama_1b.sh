@@ -17,4 +17,4 @@ bash lunch.sh torchrun_main.py\
     --name $name \
     --save_dir checkpoints/LLaMA-1B \
     --grad_clipping 1.0 \
-    --max_length 1024
+    --max-length 1024

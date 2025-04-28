@@ -17,4 +17,4 @@ bash lunch.sh torchrun_main_skip.py\
     --name $name \
     --save_dir checkpoints/Skip-LLaMA-1B \
     --grad_clipping 1.0 \
-    --max_length 1024
+    --max-length 1024
