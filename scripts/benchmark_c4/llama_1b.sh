@@ -2,7 +2,7 @@
 lr=0.0005
 wd=0.1
 name="llama1b-base-adamw-lr${lr}-wd${wd}"
-bash lunch.sh torchrun_main.py\
+bash launch.sh torchrun_main.py\
     --model_config configs/llama_1b.json \
     --lr $lr \
     --rank 1024 \
@@ -17,4 +17,4 @@ bash lunch.sh torchrun_main.py\
     --name $name \
     --save_dir checkpoints/LLaMA-1B \
     --grad_clipping 1.0 \
-    --max-length 1024
+    --max_length 1024
