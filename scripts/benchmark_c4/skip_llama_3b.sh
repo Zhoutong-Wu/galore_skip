@@ -2,7 +2,7 @@
 lr=0.0005
 wd=0.1
 name="llama3b-skip-adamw-lr${lr}-wd${wd}"
-torchrun --standalone --nproc_per_node 8 torchrun_main_skip.py \
+bash launch.sh torchrun_main_skip.py \
     --model_config configs/llama_3b.json \
     --lr $lr \
     --rank 1024 \

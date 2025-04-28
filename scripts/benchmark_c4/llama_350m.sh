@@ -2,13 +2,13 @@
 lr=0.002
 wd=0.1
 name="llama350m-base-adamw-lr${lr}-wd${wd}"
-torchrun --standalone --nproc_per_node 4 torchrun_main.py \
+bash launch.sh torchrun_main.py \
     --model_config configs/llama_350m.json \
     --lr $lr \
     --galore_scale 0.25 \
     --rank 128 \
     --update_proj_gap 200 \
-    --batch_size 64 \
+    --batch_size 32 \
     --total_batch_size 512 \
     --num_training_steps 15000 \
     --warmup_steps 1500 \
