@@ -2,12 +2,12 @@
 lr=0.0005
 wd=0.1
 name="llama1b-base-adamw-lr${lr}-wd${wd}"
-torchrun --standalone --nproc_per_node 8 torchrun_main.py \
+bash lunch.sh torchrun_main.py\
     --model_config configs/llama_1b.json \
     --lr $lr \
     --rank 1024 \
     --update_proj_gap 200 \
-    --batch_size 64 \
+    --batch_size 16 \
     --total_batch_size 512 \
     --num_training_steps 25000 \
     --warmup_steps 2500 \
@@ -17,3 +17,4 @@ torchrun --standalone --nproc_per_node 8 torchrun_main.py \
     --name $name \
     --save_dir checkpoints/LLaMA-1B \
     --grad_clipping 1.0 \
+    --max_length 1024
