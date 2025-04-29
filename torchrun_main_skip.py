@@ -61,7 +61,10 @@ def parse_args(args):
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--name", type=str, default="test")
-    parser.add_argument("--grad_clipping", type=float, default=0.0)   
+    parser.add_argument("--grad_clipping", type=float, default=0.0) 
+    
+    parser.add_argument("--adam_beta1", type=float, default=0.9)
+    parser.add_argument("--adam_beta2", type=float, default=0.95)   
     # beta1 for adafactor
     parser.add_argument("--beta1", type=float, default=0.0)
     
@@ -290,7 +293,7 @@ def main(args):
     
     layer_wise_flag = False
     if args.optimizer.lower() == "adam":
-        optimizer = torch.optim.AdamW(trainable_params, lr=args.lr, weight_decay=args.weight_decay)
+        optimizer = torch.optim.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
     elif args.optimizer.lower() == "galore_adamw":
         # redefine way to call galore_adamw
         optimizer = GaLoreAdamW(param_groups, lr=args.lr, weight_decay=args.weight_decay)
