@@ -10,11 +10,12 @@ torchrun --standalone --nproc_per_node 1 torchrun_main.py \
     --update_proj_gap 200 \
     --batch_size 64 \
     --total_batch_size 512 \
-    --num_training_steps 10000 \
-    --warmup_steps 1000 \
+    --num_training_steps 5000 \
+    --warmup_steps 500 \
     --weight_decay 0 \
     --dtype bfloat16 \
     --eval_every 1000 \
-    --save_every 200 \
+    --save_every 2500 \
     --save_dir checkpoints/LLaMA-130M \
-    --name $name
+    --name $name \
+    --grad_clipping 1.0 

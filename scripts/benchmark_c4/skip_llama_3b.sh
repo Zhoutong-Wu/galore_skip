@@ -7,7 +7,7 @@ bash launch.sh torchrun_main_skip.py \
     --lr $lr \
     --rank 1024 \
     --update_proj_gap 200 \
-    --batch_size 32 \
+    --batch_size 8 \
     --total_batch_size 512 \
     --num_training_steps 30000 \
     --warmup_steps 3000 \
