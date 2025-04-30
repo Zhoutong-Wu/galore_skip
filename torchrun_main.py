@@ -293,7 +293,8 @@ def main(args):
     
     layer_wise_flag = False
     if args.optimizer.lower() == "adam":
-        optimizer = torch.optim.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
+        # optimizer = torch.optim.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
+        optimizer = transformers.optimization.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
     elif args.optimizer.lower() == "galore_adamw":
         # redefine way to call galore_adamw
         optimizer = GaLoreAdamW(param_groups, lr=args.lr, weight_decay=args.weight_decay)
