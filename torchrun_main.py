@@ -1,4 +1,7 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0" 
+os.environ["http_proxy"] = "http://127.0.0.1:10809"
+os.environ["https_proxy"] = "http://127.0.0.1:10809"
 import time
 import json
 import random
@@ -39,7 +42,8 @@ def parse_args(args):
     parser.add_argument("--batch_size", type=int, required=True)
     parser.add_argument("--gradient_accumulation", type=int, default=None)
     parser.add_argument("--total_batch_size", type=int, default=None)
-    parser.add_argument("--max_length", type=int, default=256)
+    # parser.add_argument("--max_length", type=int, default=256)
+    parser.add_argument("--max_length", type=int, default=1024)
     parser.add_argument("--optimizer", default="Adam")
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--scheduler", type=str, default="cosine", choices=["linear", "cosine", "cosine_restarts"])
@@ -86,7 +90,8 @@ def parse_args(args):
 @torch.no_grad()
 def evaluate_model(model, preprocess_batched, pad_idx, global_rank, world_size, device, batch_size):
     _time = time.time()
-    val_data = datasets.load_dataset("/mnt/bn/ymdong-opensource/FRP/llama2_pretraining/data/c4/en", split='validation', streaming=False, cache_dir="/mnt/bn/ymdong-opensource/FRP/llama2_pretraining/data/cache")
+    # val_data = datasets.load_dataset("/mnt/bn/ymdong-opensource/FRP/llama2_pretraining/data/c4/en", split='validation', streaming=False, cache_dir="/mnt/bn/ymdong-opensource/FRP/llama2_pretraining/data/cache")
+    val_data = datasets.load_dataset("/data2/jjwang/c4/en", split='validation', streaming=True, cache_dir="/data2/ztwu/cache")
     val_data = val_data.shuffle(seed=42)
     logger.info(f"Loaded validation dataset in {time.time() - _time:.2f} seconds")
 
@@ -161,7 +166,7 @@ def main(args):
             
     # initialize wandb without config (it is passed later)
     if global_rank == 0:
-        wandb.init(project="galore-c4", name=args.name)
+        wandb.init(project="galore-c4-personal", name=args.name)
         
     logger.info(f"Using dist with rank {global_rank} (only rank 0 will log)")
     logger.info("*" * 40)
@@ -170,7 +175,8 @@ def main(args):
         logger.info(f"{k:30} {v}")
     logger.info("*" * 40)
 
-    data = datasets.load_dataset("/mnt/bn/ymdong-opensource/FRP/llama2_pretraining/data/c4/en", split='train', streaming=True)
+    # data = datasets.load_dataset("/mnt/bn/ymdong-opensource/FRP/llama2_pretraining/data/c4/en", split='train', streaming=True)
+    data = datasets.load_dataset("/data2/jjwang/c4/en", split='train', streaming=True)
 
     seed_for_shuffle = 42 
     
@@ -293,9 +299,9 @@ def main(args):
     
     layer_wise_flag = False
     if args.optimizer.lower() == "adam":
-        # optimizer = torch.optim.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
         optimizer = transformers.optimization.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
-    elif args.optimizer.lower() == "galore_adamw":
+        #optimizer = torch.optim.AdamW(trainable_params, lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.weight_decay)
+    elif args.optimizer.lower() == "galore_adamw": 
         # redefine way to call galore_adamw
         optimizer = GaLoreAdamW(param_groups, lr=args.lr, weight_decay=args.weight_decay)
     # implement sgd

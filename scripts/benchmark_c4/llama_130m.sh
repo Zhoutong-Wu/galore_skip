@@ -18,4 +18,3 @@ torchrun --standalone --nproc_per_node 1 torchrun_main.py \
     --save_every 2500 \
     --save_dir checkpoints/LLaMA-130M \
     --name $name \
-    --grad_clipping 1.0 
